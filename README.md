@@ -13,7 +13,7 @@ outline-importer is a simple tool to import documents from markdown files.
 
 ### Usage
 
-Make sure your **Directory Structure** like this(This directory structure is consistent with the expose from Outline):
+Make sure your **Directory Structure** like this(This directory structure is consistent with the export from Outline)
 
 ```
 | - wiki_dir
@@ -29,7 +29,7 @@ Make sure your **Directory Structure** like this(This directory structure is con
 ```
 
 In the above example, Importer will create two collections: dir1 and dir2, 
-and document doc4.md、doc5.md will become a sub-document of doc3.
+the document doc4.md、doc5.md will become a sub-document of doc3.
 
 git clone:
 
