@@ -49,3 +49,12 @@ such as:
 ```
 python cli.py --server http://localhost:3000/ --token JmDYPAHAKiGpMB9KJbWkIHkFSfv0RQX5oNpRgh --dir /Users/hypo/outline
 ```
+
+## Bug report
+
+If you are having trouble using it, please create an issue.😊
+
+## TODO
+
+1. Add tests
+2. Use the docker image to handle no python environment
