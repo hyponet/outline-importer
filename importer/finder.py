@@ -1,5 +1,5 @@
 import os
-
+import re
 
 class Collection:
 
@@ -26,91 +26,29 @@ class Document:
 
 class Finder:
 
-    def __init__(self, dir_path):
-        self.dir_path = dir_path
-        self.collections = []
-        self.orphans = []
+    @staticmethod
+    def scan(path):
+        return Finder.fill_collection(path,Collection("", "uncategorized"))
 
-    def scan(self):
-        files = os.listdir(self.dir_path)
-        for file in files:
-            curt_path = "{}/{}".format(self.dir_path, file)
-            if os.path.isdir(curt_path):
-                self.collections.append(Collection(
-                    path=curt_path,
-                    name=file,
-                ))
-            else:
-                if not (file.endswith(".md") or file.endswith(".MD")):
-                    print("{} is not a markdown file".format(curt_path))
-                    continue
-                file = file.replace(".md", "")
-                file = file.replace(".MD", "")
-                self.orphans.append(Document(
-                    path=curt_path,
-                    title=file,
-                ))
+    @staticmethod
+    def fill_collection(path, collection):
+        results = []
 
-        for c in self.collections:
-            self._fill_collection(c)
+        for root, subdirs, files in os.walk(path):
 
-        if self.orphans:
-            uncategorized = Collection("", "uncategorized")
-            uncategorized.documents += self.orphans
-            self.collections.append(uncategorized)
-        return self.collections
+            if root != path:
+                return results
 
-    def _fill_collection(self, collection):
-        files = os.listdir(collection.path)
-        for file in files:
-            curt_path = "{}/{}".format(collection.path, file)
-            doc = Document(curt_path, file)
+            for file in [f for f in files if re.search(r"\.md$", f)]:
+                file_path = "{}/{}".format(path, file)
+                d = Document(file_path, file)
+                collection.documents.append(d)
+                results.append(collection)
 
-            if os.path.isdir(curt_path):
-                if os.path.isfile(curt_path + ".md") or os.path.isfile(curt_path + ".MD"):
-                    continue
-                doc.has_sub_doc = True
-            else:
-                if not (file.endswith(".md") or file.endswith(".MD")):
-                    print("{} is not a markdown file".format(curt_path))
-                    continue
-                doc.title = doc.title.replace(".md", "")
-                doc.title = doc.title.replace(".MD", "")
+            for dir in subdirs:
+                dir_path = "{}/{}".format(path, dir)
+                results.append(Finder.fill_collection(dir_path, Collection(dir_path, dir)))
 
-                sub_path = "{}/{}".format(collection.path, doc.title)
-                if os.path.isdir(sub_path):
-                    doc.has_sub_doc = True
-                    doc.sub_path = sub_path
+        return collection
 
-            if doc.has_sub_doc:
-                self._fill_document(doc)
-            collection.documents.append(doc)
 
-    def _fill_document(self, document):
-        if not document.has_sub_doc:
-            return
-
-        files = os.listdir(document.sub_path)
-        for file in files:
-            curt_path = "{}/{}".format(document.sub_path, file)
-            doc = Document(curt_path, file)
-
-            if os.path.isdir(curt_path):
-                if os.path.isfile(curt_path + ".md") or os.path.isfile(curt_path + ".MD"):
-                    continue
-                doc.has_sub_doc = True
-                doc.sub_path = curt_path
-            else:
-                if not (file.endswith(".md") or file.endswith(".MD")):
-                    print("{} is not a markdown file".format(curt_path))
-                    continue
-                doc.title = doc.title.replace(".md", "")
-                doc.title = doc.title.replace(".MD", "")
-                sub_path = "{}/{}".format(document.sub_path, doc.title)
-                if os.path.isdir(sub_path):
-                    doc.has_sub_doc = True
-                    doc.sub_path = sub_path
-
-            if doc.has_sub_doc:
-                self._fill_document(doc)
-            document.sub_documents.append(doc)

@@ -22,6 +22,9 @@ class Cli:
         dir_path = args.dir
         if server.endswith("/"):
             server = server[:-1]
+        if dir_path.endswith("/"):
+            dir_path = dir_path[:-1]
+
         importer = Importer(
             api_server=server,
             token=token,
