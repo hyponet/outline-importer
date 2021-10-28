@@ -28,27 +28,15 @@ class Finder:
 
     @staticmethod
     def scan(path):
-        return Finder.fill_collection(path,Collection("", "uncategorized"))
+        collections = []
 
-    @staticmethod
-    def fill_collection(path, collection):
-        results = []
-
-        for root, subdirs, files in os.walk(path):
-
-            if root != path:
-                return results
+        for dir_name, _, files in os.walk(path):
+            collection = Collection(path, dir_name)
 
             for file in [f for f in files if re.search(r"\.md$", f)]:
-                file_path = "{}/{}".format(path, file)
-                d = Document(file_path, file)
+                d = Document(f"{path}/{file}", file)
                 collection.documents.append(d)
-                results.append(collection)
 
-            for dir in subdirs:
-                dir_path = "{}/{}".format(path, dir)
-                results.append(Finder.fill_collection(dir_path, Collection(dir_path, dir)))
+            collections.append(collection)
 
-        return collection
-
-
+        return collections
