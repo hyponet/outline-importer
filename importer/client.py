@@ -1,6 +1,13 @@
 import os
 import random
+
+import requests
 from requests import Session
+
+from requests.packages import urllib3
+
+# diable warn log for self-sign cert
+urllib3.disable_warnings()
 
 
 class HttpClient(Session):
@@ -9,6 +16,7 @@ class HttpClient(Session):
         super(HttpClient, self).__init__()
         self.base_url = base_url
         self.token = token
+        self.verify = False
         self.headers = {
             'Authorization': 'Bearer {}'.format(token),
             'Content-Type': 'application/json',
@@ -38,9 +46,13 @@ class HttpClient(Session):
             "color": "#" + "".join(random.sample(color, 6)),
         }
         rsp = self.post("/api/collections.create", json=data)
-        if rsp.status_code // 100 != 2:
-            raise RuntimeError(rsp.json())
-        collection = rsp.json()
+        try:
+            if rsp.status_code // 100 != 2:
+                raise RuntimeError(rsp.json())
+            collection = rsp.json()
+        except requests.JSONDecodeError as err:
+            print("decode failed load json content: status={} body={}".format(rsp.status_code, rsp.text))
+            raise err
         return collection['data']['id']
 
     def create_document(self, cid, pid, title, text, is_publish):
