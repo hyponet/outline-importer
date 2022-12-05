@@ -90,7 +90,7 @@ class ApiClient:
 
     def create_document(self, document, is_publish):
         if os.path.isfile(document.path):
-            with open(document.path) as f:
+            with open(document.path, encoding="utf8") as f:
                 text = f.read()
         else:
             text = "# {}".format(document.title)
