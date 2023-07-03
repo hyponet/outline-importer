@@ -1,7 +1,6 @@
 from .client import ApiClient
 from .finder import Finder
 
-
 class Importer:
 
     def __init__(self, api_server, token, dir_path, is_publish=True):
@@ -10,12 +9,11 @@ class Importer:
         self.dir_path = dir_path
 
         self.api_server = ApiClient(api_server, token)
-        self.finder = Finder(dir_path)
         self.is_publish = is_publish
 
     def run(self):
         self.api_server.auth()
-        collections = self.finder.scan()
+        collections = Finder.scan(self.dir_path)
 
         for c in collections:
             self._import_collection(c)
